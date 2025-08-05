@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PasteCase - Clipboard Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          colors: {
+            'apple-gray': {
+              50: '#f9fafb',
+              100: '#f3f4f6',
+              200: '#e5e7eb',
+              300: '#d1d5db',
+              400: '#9ca3af',
+              500: '#6b7280',
+              600: '#4b5563',
+              700: '#374151',
+              800: '#1f2937',
+              900: '#111827',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body
+  class="h-full bg-apple-gray-50 dark:bg-apple-gray-900 text-apple-gray-900 dark:text-apple-gray-50 transition-colors duration-200">
+  <!-- Header -->
+  <header class="bg-white dark:bg-apple-gray-800 shadow-sm border-b border-apple-gray-200 dark:border-apple-gray-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-apple-gray-900 dark:text-white">PasteCase</h1>
+        <div class="flex items-center space-x-4">
+          <button id="add-text-btn"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+            Add Text
+          </button>
+          <button id="add-image-btn"
+            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+            Add Image
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Search and Filter Bar -->
+    <div
+      class="mb-8 bg-white dark:bg-apple-gray-800 rounded-xl shadow-sm border border-apple-gray-200 dark:border-apple-gray-700 p-6">
+      <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex-1">
+          <input type="text" id="search-input" placeholder="Search..."
+            class="w-full px-4 py-2 border border-apple-gray-300 dark:border-apple-gray-600 rounded-lg bg-white dark:bg-apple-gray-700 text-apple-gray-900 dark:text-apple-gray-100 placeholder-apple-gray-500 dark:placeholder-apple-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <select id="category-filter"
+          class="px-4 py-2 border border-apple-gray-300 dark:border-apple-gray-600 rounded-lg bg-white dark:bg-apple-gray-700 text-apple-gray-900 dark:text-apple-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <option value="">All Categories</option>
+          <option value="text">Text</option>
+          <option value="image">Image</option>
+        </select>
+        <select id="sort-select"
+          class="px-4 py-2 border border-apple-gray-300 dark:border-apple-gray-600 rounded-lg bg-white dark:bg-apple-gray-700 text-apple-gray-900 dark:text-apple-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Clips Grid -->
+    <div id="clips-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Clip cards will be dynamically added here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="text-center py-12 hidden">
+      <h3 class="text-xl font-medium text-apple-gray-500 dark:text-apple-gray-400 mb-2">No clips yet</h3>
+      <p class="text-apple-gray-400 dark:text-apple-gray-500">Add some text or images to get started</p>
+    </div>
+  </main>
+
+  <!-- Add Text Modal -->
+  <div id="text-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-apple-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <div class="p-6 border-b border-apple-gray-200 dark:border-apple-gray-700">
+        <h2 class="text-xl font-semibold text-apple-gray-900 dark:text-white">Add Text</h2>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label for="text-content"
+            class="block text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300 mb-2">Content</label>
+          <textarea id="text-content" rows="6" placeholder="Enter or paste your text here..."
+            class="w-full px-4 py-2 border border-apple-gray-300 dark:border-apple-gray-600 rounded-lg bg-white dark:bg-apple-gray-700 text-apple-gray-900 dark:text-apple-gray-100 placeholder-apple-gray-500 dark:placeholder-apple-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+        </div>
+        <div>
+          <label for="text-tags"
+            class="block text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300 mb-2">Tags (comma
+            separated)</label>
+          <input type="text" id="text-tags" placeholder="e.g. note, important, work"
+            class="w-full px-4 py-2 border border-apple-gray-300 dark:border-apple-gray-600 rounded-lg bg-white dark:bg-apple-gray-700 text-apple-gray-900 dark:text-apple-gray-100 placeholder-apple-gray-500 dark:placeholder-apple-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+          <label for="text-memo"
+            class="block text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300 mb-2">Note (optional)</label>
+          <input type="text" id="text-memo" placeholder="Enter a note..."
+            class="w-full px-4 py-2 border border-apple-gray-300 dark:border-apple-gray-600 rounded-lg bg-white dark:bg-apple-gray-700 text-apple-gray-900 dark:text-apple-gray-100 placeholder-apple-gray-500 dark:placeholder-apple-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+      </div>
+      <div class="p-6 border-t border-apple-gray-200 dark:border-apple-gray-700 flex justify-end space-x-3">
+        <button id="text-modal-cancel"
+          class="px-4 py-2 text-apple-gray-700 dark:text-apple-gray-300 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 rounded-lg transition-colors duration-200">
+          Cancel
+        </button>
+        <button id="text-modal-save"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Image Modal -->
+  <div id="image-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-apple-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <div class="p-6 border-b border-apple-gray-200 dark:border-apple-gray-700">
+        <h2 class="text-xl font-semibold text-apple-gray-900 dark:text-white">Add Image</h2>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label for="image-input"
+            class="block text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300 mb-2">Image File</label>
+          <input type="file" id="image-input" accept="image/*"
+            class="w-full px-4 py-2 border border-apple-gray-300 dark:border-apple-gray-600 rounded-lg bg-white dark:bg-apple-gray-700 text-apple-gray-900 dark:text-apple-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div id="image-preview" class="hidden">
+          <img id="preview-img"
+            class="max-w-full h-48 object-contain mx-auto rounded-lg border border-apple-gray-300 dark:border-apple-gray-600">
+        </div>
+        <div>
+          <label for="image-tags"
+            class="block text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300 mb-2">Tags (comma
+            separated)</label>
+          <input type="text" id="image-tags" placeholder="e.g. screenshot, design, reference"
+            class="w-full px-4 py-2 border border-apple-gray-300 dark:border-apple-gray-600 rounded-lg bg-white dark:bg-apple-gray-700 text-apple-gray-900 dark:text-apple-gray-100 placeholder-apple-gray-500 dark:placeholder-apple-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+          <label for="image-memo"
+            class="block text-sm font-medium text-apple-gray-700 dark:text-apple-gray-300 mb-2">Note (optional)</label>
+          <input type="text" id="image-memo" placeholder="Enter a note..."
+            class="w-full px-4 py-2 border border-apple-gray-300 dark:border-apple-gray-600 rounded-lg bg-white dark:bg-apple-gray-700 text-apple-gray-900 dark:text-apple-gray-100 placeholder-apple-gray-500 dark:placeholder-apple-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+      </div>
+      <div class="p-6 border-t border-apple-gray-200 dark:border-apple-gray-700 flex justify-end space-x-3">
+        <button id="image-modal-cancel"
+          class="px-4 py-2 text-apple-gray-700 dark:text-apple-gray-300 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 rounded-lg transition-colors duration-200">
+          Cancel
+        </button>
+        <button id="image-modal-save"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="app.js"></script>
+</body>
+
+</html>
