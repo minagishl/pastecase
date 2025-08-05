@@ -227,96 +227,184 @@ class PastecaseApp {
       emptyState.classList.remove("hidden");
     } else {
       emptyState.classList.add("hidden");
-      container.innerHTML = filteredClips
-        .map((clip) => this.createClipCard(clip))
-        .join("");
+      container.innerHTML = "";
+      filteredClips.forEach((clip) => {
+        const clipElement = this.createClipCard(clip);
+        container.appendChild(clipElement);
+      });
     }
   }
 
-  // Create clip card
+  // Create clip card using DOM methods
   createClipCard(clip) {
     const date = new Date(clip.createdAt).toLocaleString("en-US");
-    const tags = clip.tags
-      .map(
-        (tag) =>
-          `<span class="inline-block px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">${tag}</span>`
-      )
-      .join(" ");
+    
+    // Create main card container
+    const card = this.createElement("div", {
+      className: "bg-white dark:bg-apple-gray-800 rounded-xl shadow-sm border border-apple-gray-200 dark:border-apple-gray-700 p-6 hover:shadow-md transition-shadow duration-200"
+    });
 
+    // Create header section
+    const header = this.createCardHeader(clip);
+    card.appendChild(header);
+
+    // Create content section based on type
     if (clip.type === "text") {
-      const truncatedContent =
-        clip.content.length > 100
-          ? clip.content.substring(0, 100) + "..."
-          : clip.content;
-      return `
-                <div class="bg-white dark:bg-apple-gray-800 rounded-xl shadow-sm border border-apple-gray-200 dark:border-apple-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm font-medium text-apple-gray-500 dark:text-apple-gray-400">Text</span>
-                        </div>
-                        <button onclick="pastecaseApp.deleteClip(${
-                          clip.id
-                        })" class="text-apple-gray-400 hover:text-red-500 transition-colors duration-200">
-                          Delete
-                        </button>
-                    </div>
-                    <div class="mb-4">
-                        <pre class="text-sm text-apple-gray-700 dark:text-apple-gray-300 whitespace-pre-wrap font-mono bg-apple-gray-50 dark:bg-apple-gray-700 p-3 rounded-lg">${truncatedContent}</pre>
-                    </div>
-                    ${
-                      clip.memo
-                        ? `<p class="text-sm text-apple-gray-600 dark:text-apple-gray-400 mb-3">${clip.memo}</p>`
-                        : ""
-                    }
-                    <div class="flex flex-wrap gap-1 mb-3">${tags}</div>
-                    <div class="flex items-center justify-between text-xs text-apple-gray-500 dark:text-apple-gray-400">
-                        <span>${date}</span>
-                        <button onclick="pastecaseApp.copyToClipboard('${clip.content.replace(
-                          /'/g,
-                          "\\'"
-                        )}')" class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200">
-                            Copy
-                        </button>
-                    </div>
-                </div>
-            `;
+      const content = this.createTextContent(clip);
+      card.appendChild(content);
     } else if (clip.type === "image") {
-      return `
-                <div class="bg-white dark:bg-apple-gray-800 rounded-xl shadow-sm border border-apple-gray-200 dark:border-apple-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm font-medium text-apple-gray-500 dark:text-apple-gray-400">Image</span>
-                        </div>
-                        <button onclick="pastecaseApp.deleteClip(${
-                          clip.id
-                        })" class="text-apple-gray-400 hover:text-red-500 transition-colors duration-200">
-                            Delete
-                        </button>
-                    </div>
-                    <div class="mb-4">
-                        <img src="${
-                          clip.content
-                        }" alt="Clip image" class="w-full h-48 object-cover rounded-lg border border-apple-gray-200 dark:border-apple-gray-600">
-                    </div>
-                    ${
-                      clip.memo
-                        ? `<p class="text-sm text-apple-gray-600 dark:text-apple-gray-400 mb-3">${clip.memo}</p>`
-                        : ""
-                    }
-                    <div class="flex flex-wrap gap-1 mb-3">${tags}</div>
-                    <div class="flex items-center justify-between text-xs text-apple-gray-500 dark:text-apple-gray-400">
-                        <span>${date}</span>
-                        <button onclick="pastecaseApp.downloadImage('${
-                          clip.content
-                        }', 'image-${
-        clip.id
-      }')" class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-800 transition-colors duration-200">
-                            Download
-                        </button>
-                    </div>
-                </div>
-            `;
+      const content = this.createImageContent(clip);
+      card.appendChild(content);
     }
+
+    // Create memo section if exists
+    if (clip.memo) {
+      const memo = this.createMemoSection(clip.memo);
+      card.appendChild(memo);
+    }
+
+    // Create tags section
+    const tags = this.createTagsSection(clip.tags);
+    card.appendChild(tags);
+
+    // Create footer section
+    const footer = this.createCardFooter(clip, date);
+    card.appendChild(footer);
+
+    return card;
+  }
+
+  // Helper method to create DOM elements
+  createElement(tag, attributes = {}, textContent = "") {
+    const element = document.createElement(tag);
+    
+    Object.keys(attributes).forEach(key => {
+      if (key === "className") {
+        element.className = attributes[key];
+      } else if (key === "onclick") {
+        element.onclick = attributes[key];
+      } else {
+        element.setAttribute(key, attributes[key]);
+      }
+    });
+
+    if (textContent) {
+      element.textContent = textContent;
+    }
+
+    return element;
+  }
+
+  // Create card header with type indicator and delete button
+  createCardHeader(clip) {
+    const header = this.createElement("div", {
+      className: "flex items-start justify-between mb-3"
+    });
+
+    const typeSection = this.createElement("div", {
+      className: "flex items-center space-x-2"
+    });
+
+    const typeLabel = this.createElement("span", {
+      className: "text-sm font-medium text-apple-gray-500 dark:text-apple-gray-400"
+    }, clip.type === "text" ? "Text" : "Image");
+
+    const deleteButton = this.createElement("button", {
+      className: "text-apple-gray-400 hover:text-red-500 transition-colors duration-200",
+      onclick: () => this.deleteClip(clip.id)
+    }, "Delete");
+
+    typeSection.appendChild(typeLabel);
+    header.appendChild(typeSection);
+    header.appendChild(deleteButton);
+
+    return header;
+  }
+
+  // Create text content section
+  createTextContent(clip) {
+    const contentSection = this.createElement("div", {
+      className: "mb-4"
+    });
+
+    const truncatedContent = clip.content.length > 100 
+      ? clip.content.substring(0, 100) + "..." 
+      : clip.content;
+
+    const pre = this.createElement("pre", {
+      className: "text-sm text-apple-gray-700 dark:text-apple-gray-300 whitespace-pre-wrap font-mono bg-apple-gray-50 dark:bg-apple-gray-700 p-3 rounded-lg"
+    }, truncatedContent);
+
+    contentSection.appendChild(pre);
+    return contentSection;
+  }
+
+  // Create image content section
+  createImageContent(clip) {
+    const contentSection = this.createElement("div", {
+      className: "mb-4"
+    });
+
+    const img = this.createElement("img", {
+      src: clip.content,
+      alt: "Clip image",
+      className: "w-full h-48 object-cover rounded-lg border border-apple-gray-200 dark:border-apple-gray-600"
+    });
+
+    contentSection.appendChild(img);
+    return contentSection;
+  }
+
+  // Create memo section
+  createMemoSection(memo) {
+    return this.createElement("p", {
+      className: "text-sm text-apple-gray-600 dark:text-apple-gray-400 mb-3"
+    }, memo);
+  }
+
+  // Create tags section
+  createTagsSection(tags) {
+    const tagsContainer = this.createElement("div", {
+      className: "flex flex-wrap gap-1 mb-3"
+    });
+
+    tags.forEach(tag => {
+      const tagElement = this.createElement("span", {
+        className: "inline-block px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full"
+      }, tag);
+      tagsContainer.appendChild(tagElement);
+    });
+
+    return tagsContainer;
+  }
+
+  // Create card footer with date and action button
+  createCardFooter(clip, date) {
+    const footer = this.createElement("div", {
+      className: "flex items-center justify-between text-xs text-apple-gray-500 dark:text-apple-gray-400"
+    });
+
+    const dateSpan = this.createElement("span", {}, date);
+
+    let actionButton;
+    if (clip.type === "text") {
+      actionButton = this.createElement("button", {
+        className: "px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200",
+        onclick: () => this.copyToClipboard(clip.content)
+      }, "Copy");
+    } else if (clip.type === "image") {
+      actionButton = this.createElement("button", {
+        className: "px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-800 transition-colors duration-200",
+        onclick: () => this.downloadImage(clip.content, `image-${clip.id}`)
+      }, "Download");
+    }
+
+    footer.appendChild(dateSpan);
+    if (actionButton) {
+      footer.appendChild(actionButton);
+    }
+
+    return footer;
   }
 
   // Show text modal
