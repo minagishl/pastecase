@@ -106,6 +106,8 @@ class PastecaseApp {
     this.currentSort = "newest";
     this.currentFilter = "";
     this.currentSearch = "";
+    this.clipboardUsed = false;
+    this.clipboardImageUsed = false;
 
     this.init();
   }
@@ -480,7 +482,39 @@ class PastecaseApp {
   }
 
   // Show text modal
-  showTextModal() {
+  async showTextModal() {
+    this.clipboardUsed = false;
+
+    // Try to read from clipboard
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      for (const clipboardItem of clipboardItems) {
+        // Check for text content
+        for (const type of clipboardItem.types) {
+          if (type.startsWith("text/")) {
+            const blob = await clipboardItem.getType(type);
+            const text = await blob.text();
+            if (text.trim()) {
+              document.getElementById("text-content").value = text;
+              this.clipboardUsed = true;
+              break;
+            }
+          }
+        }
+      }
+    } catch {
+      // Fallback to readText for browsers that don't support read()
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text.trim()) {
+          document.getElementById("text-content").value = text;
+          this.clipboardUsed = true;
+        }
+      } catch {
+        console.log("Clipboard access not available");
+      }
+    }
+
     document.getElementById("text-modal").classList.remove("hidden");
     document.getElementById("text-content").focus();
   }
@@ -491,10 +525,49 @@ class PastecaseApp {
     document.getElementById("text-content").value = "";
     document.getElementById("text-tags").value = "";
     document.getElementById("text-memo").value = "";
+    this.clipboardUsed = false;
   }
 
   // Show image modal
-  showImageModal() {
+  async showImageModal() {
+    this.clipboardImageUsed = false;
+
+    // Try to read from clipboard
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      for (const clipboardItem of clipboardItems) {
+        // Check for image content
+        for (const type of clipboardItem.types) {
+          if (type.startsWith("image/")) {
+            const blob = await clipboardItem.getType(type);
+
+            // Create a File object from the blob
+            const file = new File(
+              [blob],
+              `clipboard-image.${type.split("/")[1]}`,
+              { type }
+            );
+
+            // Create a FileList-like object
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+
+            // Set the file input
+            document.getElementById("image-input").files = dataTransfer.files;
+
+            // Trigger preview
+            const event = { target: { files: [file] } };
+            this.previewImage(event);
+
+            this.clipboardImageUsed = true;
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Clipboard image access not available:", error);
+    }
+
     document.getElementById("image-modal").classList.remove("hidden");
   }
 
@@ -505,6 +578,7 @@ class PastecaseApp {
     document.getElementById("image-tags").value = "";
     document.getElementById("image-memo").value = "";
     document.getElementById("image-preview").classList.add("hidden");
+    this.clipboardImageUsed = false;
   }
 
   // Preview image
@@ -543,6 +617,16 @@ class PastecaseApp {
         memo: memo,
         mimeType: "text/plain",
       });
+
+      // Clear clipboard if it was used
+      if (this.clipboardUsed) {
+        try {
+          await navigator.clipboard.writeText("");
+          this.clipboardUsed = false;
+        } catch (error) {
+          console.log("Failed to clear clipboard:", error);
+        }
+      }
 
       await this.loadClips();
       this.renderClips();
@@ -584,6 +668,16 @@ class PastecaseApp {
             filesize: file.size,
             mimeType: file.type,
           });
+
+          // Clear clipboard if it was used
+          if (this.clipboardImageUsed) {
+            try {
+              await navigator.clipboard.write([]);
+              this.clipboardImageUsed = false;
+            } catch (error) {
+              console.log("Failed to clear clipboard:", error);
+            }
+          }
 
           await this.loadClips();
           this.renderClips();
