@@ -178,6 +178,9 @@ class PastecaseApp {
     document.getElementById("image-preview-modal").addEventListener("click", (e) => {
       if (e.target.id === "image-preview-modal") this.hideImagePreview();
     });
+
+    // Drag and drop events
+    this.setupDragAndDrop();
   }
 
   // Load clips
@@ -311,9 +314,20 @@ class PastecaseApp {
       className: "flex items-center space-x-2"
     });
 
+    // Create type label with MIME type info
+    let typeText = clip.type === "text" ? "Text" : "Image";
+    if (clip.mimeType) {
+      if (clip.type === "text" && clip.filename) {
+        typeText = `Text File (${clip.filename.split('.').pop()?.toUpperCase() || 'TXT'})`;
+      } else if (clip.type === "image") {
+        const imageType = clip.mimeType.split('/')[1]?.toUpperCase() || 'IMG';
+        typeText = `Image (${imageType})`;
+      }
+    }
+
     const typeLabel = this.createElement("span", {
       className: "text-sm font-medium text-apple-gray-500 dark:text-apple-gray-400"
-    }, clip.type === "text" ? "Text" : "Image");
+    }, typeText);
 
     const deleteButton = this.createElement("button", {
       className: "text-apple-gray-400 hover:text-red-500 transition-colors duration-200",
@@ -476,6 +490,7 @@ class PastecaseApp {
         content: content,
         tags: tags,
         memo: memo,
+        mimeType: "text/plain"
       });
 
       await this.loadClips();
@@ -516,6 +531,7 @@ class PastecaseApp {
             memo: memo,
             filename: file.name,
             filesize: file.size,
+            mimeType: file.type
           });
 
           await this.loadClips();
@@ -687,6 +703,112 @@ class PastecaseApp {
         document.body.removeChild(toast);
       }, 300);
     }, 3000);
+  }
+
+  // Setup drag and drop functionality
+  setupDragAndDrop() {
+
+    // Prevent default drag behaviors on the entire document
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      document.addEventListener(eventName, this.preventDefaults, false);
+    });
+
+    // Highlight drop zone when item is dragged over
+    ['dragenter', 'dragover'].forEach(eventName => {
+      document.addEventListener(eventName, () => this.showDropZone(), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      document.addEventListener(eventName, (e) => {
+        // Only hide if we're leaving the document or dropping
+        if (e.type === 'drop' || !e.relatedTarget) {
+          this.hideDropZone();
+        }
+      }, false);
+    });
+
+    // Handle dropped files
+    document.addEventListener('drop', (e) => this.handleDrop(e), false);
+  }
+
+  // Prevent default drag behaviors
+  preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  // Show drop zone
+  showDropZone() {
+    document.getElementById("drop-zone").classList.remove("hidden");
+  }
+
+  // Hide drop zone
+  hideDropZone() {
+    document.getElementById("drop-zone").classList.add("hidden");
+  }
+
+  // Handle dropped files
+  async handleDrop(e) {
+    const files = e.dataTransfer.files;
+    
+    for (let file of files) {
+      await this.processDroppedFile(file);
+    }
+  }
+
+  // Process individual dropped file
+  async processDroppedFile(file) {
+    const mimeType = file.type;
+    const fileName = file.name;
+    const fileSize = file.size;
+
+    try {
+      if (mimeType.startsWith('image/')) {
+        // Handle image files
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          await this.db.saveClip({
+            type: 'image',
+            content: e.target.result,
+            tags: ['dropped-file'],
+            memo: `Dropped image: ${fileName}`,
+            filename: fileName,
+            filesize: fileSize,
+            mimeType: mimeType
+          });
+
+          await this.loadClips();
+          this.renderClips();
+          this.showSuccess(`Image "${fileName}" added successfully`);
+        };
+        reader.readAsDataURL(file);
+      } else if (mimeType.startsWith('text/') || mimeType === 'application/json' || fileName.endsWith('.txt') || fileName.endsWith('.md')) {
+        // Handle text files
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          await this.db.saveClip({
+            type: 'text',
+            content: e.target.result,
+            tags: ['dropped-file', 'text-file'],
+            memo: `Dropped file: ${fileName}`,
+            filename: fileName,
+            filesize: fileSize,
+            mimeType: mimeType
+          });
+
+          await this.loadClips();
+          this.renderClips();
+          this.showSuccess(`Text file "${fileName}" added successfully`);
+        };
+        reader.readAsText(file);
+      } else {
+        // Unsupported file type
+        this.showError(`Unsupported file type: ${mimeType || 'unknown'}`);
+      }
+    } catch (error) {
+      console.error('Error processing dropped file:', error);
+      this.showError(`Failed to process file: ${fileName}`);
+    }
   }
 }
 
