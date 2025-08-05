@@ -763,11 +763,66 @@ class PastecaseApp {
       event.preventDefault();
       this.showImageModal();
     }
+    // Ctrl+V / Cmd+V: Paste from clipboard
+    if ((event.ctrlKey || event.metaKey) && event.key === "v") {
+      event.preventDefault();
+      this.handlePaste();
+    }
     // Escape: Close modals
     if (event.key === "Escape") {
       this.hideTextModal();
       this.hideImageModal();
       this.hideImagePreview();
+    }
+  }
+
+  // Handle paste from clipboard
+  async handlePaste() {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      let hasText = false;
+      let hasImage = false;
+
+      for (const clipboardItem of clipboardItems) {
+        for (const type of clipboardItem.types) {
+          if (type.startsWith("text/")) {
+            hasText = true;
+          } else if (type.startsWith("image/")) {
+            hasImage = true;
+          }
+        }
+      }
+
+      // If both text and image are available, prioritize text
+      if (hasText) {
+        this.showTextModal();
+      } else if (hasImage) {
+        this.showImageModal();
+      } else {
+        // Fallback: try to read text from clipboard
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text.trim()) {
+            this.showTextModal();
+          } else {
+            this.showError("No content found in clipboard");
+          }
+        } catch {
+          this.showError("No content found in clipboard");
+        }
+      }
+    } catch {
+      // Fallback for browsers that don't support clipboard.read()
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text.trim()) {
+          this.showTextModal();
+        } else {
+          this.showError("No text content found in clipboard");
+        }
+      } catch {
+        this.showError("Clipboard access not available");
+      }
     }
   }
 
