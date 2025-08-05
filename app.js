@@ -250,33 +250,40 @@ class PastecaseApp {
     
     // Create main card container
     const card = this.createElement("div", {
-      className: "bg-white dark:bg-apple-gray-800 rounded-xl shadow-sm border border-apple-gray-200 dark:border-apple-gray-700 p-6 hover:shadow-md transition-shadow duration-200"
+      className: "bg-white dark:bg-apple-gray-800 rounded-xl shadow-sm border border-apple-gray-200 dark:border-apple-gray-700 p-6 hover:shadow-md transition-shadow duration-200 flex flex-col h-full"
     });
 
     // Create header section
     const header = this.createCardHeader(clip);
     card.appendChild(header);
 
+    // Create content container that will grow to fill space
+    const contentContainer = this.createElement("div", {
+      className: "flex-1 flex flex-col"
+    });
+
     // Create content section based on type
     if (clip.type === "text") {
       const content = this.createTextContent(clip);
-      card.appendChild(content);
+      contentContainer.appendChild(content);
     } else if (clip.type === "image") {
       const content = this.createImageContent(clip);
-      card.appendChild(content);
+      contentContainer.appendChild(content);
     }
 
     // Create memo section if exists
     if (clip.memo) {
       const memo = this.createMemoSection(clip.memo);
-      card.appendChild(memo);
+      contentContainer.appendChild(memo);
     }
 
     // Create tags section
     const tags = this.createTagsSection(clip.tags);
-    card.appendChild(tags);
+    contentContainer.appendChild(tags);
 
-    // Create footer section
+    card.appendChild(contentContainer);
+
+    // Create footer section (this will be pushed to bottom)
     const footer = this.createCardFooter(clip, date);
     card.appendChild(footer);
 
