@@ -104,8 +104,8 @@ This application uses modern web standards and requires no build process. Simply
 
 ### Code Structure
 
-- `PasteCaseDB`: Handles all IndexedDB operations
-- `PasteCaseApp`: Main application class managing UI and user interactions
+- `PastecaseDB`: Handles all IndexedDB operations
+- `PastecaseApp`: Main application class managing UI and user interactions
 - Modular design with clear separation of concerns
 
 ## Limitations

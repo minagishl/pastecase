@@ -1,9 +1,9 @@
-// PasteCase - Clipboard Manager Application
+// Pastecase - Clipboard Manager Application
 // Local storage management using IndexedDB
 
-class PasteCaseDB {
+class PastecaseDB {
   constructor() {
-    this.dbName = "PasteCaseDB";
+    this.dbName = "PastecaseDB";
     this.version = 1;
     this.db = null;
   }
@@ -99,9 +99,9 @@ class PasteCaseDB {
   }
 }
 
-class PasteCaseApp {
+class PastecaseApp {
   constructor() {
-    this.db = new PasteCaseDB();
+    this.db = new PastecaseDB();
     this.clips = [];
     this.currentSort = "newest";
     this.currentFilter = "";
@@ -254,7 +254,7 @@ class PasteCaseApp {
                         <div class="flex items-center space-x-2">
                             <span class="text-sm font-medium text-apple-gray-500 dark:text-apple-gray-400">Text</span>
                         </div>
-                        <button onclick="pasteCaseApp.deleteClip(${
+                        <button onclick="pastecaseApp.deleteClip(${
                           clip.id
                         })" class="text-apple-gray-400 hover:text-red-500 transition-colors duration-200">
                           Delete
@@ -271,7 +271,7 @@ class PasteCaseApp {
                     <div class="flex flex-wrap gap-1 mb-3">${tags}</div>
                     <div class="flex items-center justify-between text-xs text-apple-gray-500 dark:text-apple-gray-400">
                         <span>${date}</span>
-                        <button onclick="pasteCaseApp.copyToClipboard('${clip.content.replace(
+                        <button onclick="pastecaseApp.copyToClipboard('${clip.content.replace(
                           /'/g,
                           "\\'"
                         )}')" class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200">
@@ -287,7 +287,7 @@ class PasteCaseApp {
                         <div class="flex items-center space-x-2">
                             <span class="text-sm font-medium text-apple-gray-500 dark:text-apple-gray-400">Image</span>
                         </div>
-                        <button onclick="pasteCaseApp.deleteClip(${
+                        <button onclick="pastecaseApp.deleteClip(${
                           clip.id
                         })" class="text-apple-gray-400 hover:text-red-500 transition-colors duration-200">
                             Delete
@@ -306,7 +306,7 @@ class PasteCaseApp {
                     <div class="flex flex-wrap gap-1 mb-3">${tags}</div>
                     <div class="flex items-center justify-between text-xs text-apple-gray-500 dark:text-apple-gray-400">
                         <span>${date}</span>
-                        <button onclick="pasteCaseApp.downloadImage('${
+                        <button onclick="pastecaseApp.downloadImage('${
                           clip.content
                         }', 'image-${
         clip.id
@@ -550,7 +550,7 @@ class PasteCaseApp {
 }
 
 // Initialize application
-let pasteCaseApp;
+let pastecaseApp;
 document.addEventListener("DOMContentLoaded", () => {
-  pasteCaseApp = new PasteCaseApp();
+  pastecaseApp = new PastecaseApp();
 });
