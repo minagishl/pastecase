@@ -89,8 +89,8 @@
   </main>
 
   <!-- Add Text Modal -->
-  <div id="text-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-apple-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+  <div id="text-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-apple-gray-800 rounded-xl shadow-2xl border border-apple-gray-200 dark:border-apple-gray-600 max-w-2xl w-full max-h-[90vh] overflow-hidden">
       <div class="p-6 border-b border-apple-gray-200 dark:border-apple-gray-700">
         <h2 class="text-xl font-semibold text-apple-gray-900 dark:text-white">Add Text</h2>
       </div>
@@ -129,8 +129,8 @@
   </div>
 
   <!-- Add Image Modal -->
-  <div id="image-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-apple-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+  <div id="image-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-apple-gray-800 rounded-xl shadow-2xl border border-apple-gray-200 dark:border-apple-gray-600 max-w-2xl w-full max-h-[90vh] overflow-hidden">
       <div class="p-6 border-b border-apple-gray-200 dark:border-apple-gray-700">
         <h2 class="text-xl font-semibold text-apple-gray-900 dark:text-white">Add Image</h2>
       </div>
@@ -167,6 +167,37 @@
         <button id="image-modal-save"
           class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
           Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Preview Modal -->
+  <div id="image-preview-modal"
+    class="hidden fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="relative max-w-[90vw] max-h-[90vh] flex flex-col bg-white dark:bg-apple-gray-800 rounded-xl shadow-2xl border border-apple-gray-200 dark:border-apple-gray-600 overflow-hidden">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center p-4 border-b border-apple-gray-200 dark:border-apple-gray-600">
+        <h3 id="preview-image-title" class="text-apple-gray-900 dark:text-white text-lg font-medium">Image Preview</h3>
+        <button id="close-preview-btn" class="text-apple-gray-500 dark:text-apple-gray-400 hover:text-apple-gray-700 dark:hover:text-apple-gray-200 text-2xl leading-none transition-colors duration-200">
+          ×
+        </button>
+      </div>
+
+      <!-- Image Container -->
+      <div class="flex-1 flex items-center justify-center bg-apple-gray-50 dark:bg-apple-gray-700 p-4">
+        <img id="preview-image" class="max-w-full max-h-full object-contain rounded-lg shadow-lg" alt="Preview">
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-center gap-4 p-4 border-t border-apple-gray-200 dark:border-apple-gray-600">
+        <button id="preview-download-btn"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
+          Download
+        </button>
+        <button id="preview-delete-btn"
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
+          Delete
         </button>
       </div>
     </div>

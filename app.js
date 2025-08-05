@@ -172,6 +172,12 @@ class PastecaseApp {
     document.getElementById("image-modal").addEventListener("click", (e) => {
       if (e.target.id === "image-modal") this.hideImageModal();
     });
+
+    // Image preview modal events
+    document.getElementById("close-preview-btn").addEventListener("click", () => this.hideImagePreview());
+    document.getElementById("image-preview-modal").addEventListener("click", (e) => {
+      if (e.target.id === "image-preview-modal") this.hideImagePreview();
+    });
   }
 
   // Load clips
@@ -348,7 +354,8 @@ class PastecaseApp {
     const img = this.createElement("img", {
       src: clip.content,
       alt: "Clip image",
-      className: "w-full h-48 object-cover rounded-lg border border-apple-gray-200 dark:border-apple-gray-600"
+      className: "w-full h-48 object-cover rounded-lg border border-apple-gray-200 dark:border-apple-gray-600 cursor-pointer hover:opacity-80 transition-opacity duration-200",
+      onclick: () => this.showImagePreview(clip)
     });
 
     contentSection.appendChild(img);
@@ -599,7 +606,53 @@ class PastecaseApp {
     if (event.key === "Escape") {
       this.hideTextModal();
       this.hideImageModal();
+      this.hideImagePreview();
     }
+  }
+
+  // Show image preview modal
+  showImagePreview(clip) {
+    const modal = document.getElementById("image-preview-modal");
+    const previewImage = document.getElementById("preview-image");
+    const imageTitle = document.getElementById("preview-image-title");
+    const downloadBtn = document.getElementById("preview-download-btn");
+    const deleteBtn = document.getElementById("preview-delete-btn");
+
+    // Set image source and title
+    previewImage.src = clip.content;
+    imageTitle.textContent = clip.memo || `Image - ${new Date(clip.createdAt).toLocaleDateString()}`;
+
+    // Update button handlers
+    downloadBtn.onclick = () => {
+      this.downloadImage(clip.content, `image-${clip.id}`);
+      this.hideImagePreview();
+    };
+
+    deleteBtn.onclick = () => {
+      if (confirm("Are you sure you want to delete this image?")) {
+        this.deleteClip(clip.id);
+        this.hideImagePreview();
+      }
+    };
+
+    // Show modal
+    modal.classList.remove("hidden");
+    
+    // Focus trap for accessibility
+    downloadBtn.focus();
+  }
+
+  // Hide image preview modal
+  hideImagePreview() {
+    const modal = document.getElementById("image-preview-modal");
+    const previewImage = document.getElementById("preview-image");
+    
+    modal.classList.add("hidden");
+    previewImage.src = "";
+    
+    // Clean up event handlers
+    document.getElementById("preview-download-btn").onclick = null;
+    document.getElementById("preview-delete-btn").onclick = null;
   }
 
   // Show success message
@@ -638,7 +691,6 @@ class PastecaseApp {
 }
 
 // Initialize application
-let pastecaseApp;
 document.addEventListener("DOMContentLoaded", () => {
-  pastecaseApp = new PastecaseApp();
+  window.pastecaseApp = new PastecaseApp();
 });
