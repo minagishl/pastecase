@@ -426,10 +426,16 @@ class PastecaseApp {
         "span",
         {
           className:
-            "inline-block px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full",
+            "inline-block px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors",
         },
         tag
       );
+
+      tagElement.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.searchByTag(tag);
+      });
+
       tagsContainer.appendChild(tagElement);
     });
 
@@ -732,6 +738,13 @@ class PastecaseApp {
   handleSearch(query) {
     this.currentSearch = query;
     this.renderClips();
+  }
+
+  // Handle tag click to search
+  searchByTag(tag) {
+    const searchInput = document.getElementById("search-input");
+    searchInput.value = tag;
+    this.handleSearch(tag);
   }
 
   // Handle filter
