@@ -762,7 +762,11 @@ class PastecaseApp {
   // Handle keyboard shortcuts
   handleKeyboard(event) {
     // Ctrl+Shift+1: Add text
-    if (event.ctrlKey && event.shiftKey && event.key === "!") {
+    if (
+      event.ctrlKey &&
+      event.shiftKey &&
+      (event.key === "!" || event.key === "1")
+    ) {
       event.preventDefault();
       this.showTextModal();
     }
