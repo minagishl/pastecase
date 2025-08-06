@@ -83,6 +83,7 @@ pastecase/
 
 - `Ctrl+Shift+1`: Open add text modal
 - `Ctrl+Shift+2`: Open add image modal
+- `Ctrl+V` / `Cmd+V`: Paste from clipboard (automatically detects text/image)
 - `Escape`: Close any open modal
 
 ## Browser Compatibility
