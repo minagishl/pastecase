@@ -373,18 +373,13 @@ class PastecaseApp {
       className: "mb-4",
     });
 
-    const truncatedContent =
-      clip.content.length > 100
-        ? clip.content.substring(0, 100) + "..."
-        : clip.content;
-
     const pre = this.createElement(
       "pre",
       {
         className:
-          "text-sm text-apple-gray-700 dark:text-apple-gray-300 whitespace-pre-wrap font-mono bg-apple-gray-50 dark:bg-apple-gray-700 p-3 rounded-lg break-words overflow-wrap-anywhere",
+          "text-sm max-h-48 text-apple-gray-700 dark:text-apple-gray-300 whitespace-pre-wrap font-mono bg-apple-gray-50 dark:bg-apple-gray-700 p-3 rounded-lg break-words overflow-wrap-anywhere overflow-y-auto",
       },
-      truncatedContent
+      clip.content
     );
 
     contentSection.appendChild(pre);
