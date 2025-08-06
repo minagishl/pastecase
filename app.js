@@ -765,8 +765,15 @@ class PastecaseApp {
     }
     // Ctrl+V / Cmd+V: Paste from clipboard
     if ((event.ctrlKey || event.metaKey) && event.key === "v") {
-      event.preventDefault();
-      this.handlePaste();
+      // Check if search input is focused
+      const searchInput = document.getElementById("search-input");
+      const isSearchInputFocused = document.activeElement === searchInput;
+
+      if (!isSearchInputFocused) {
+        event.preventDefault();
+        this.handlePaste();
+      }
+      // If search input is focused, let the browser handle the default paste behavior
     }
     // Escape: Close modals
     if (event.key === "Escape") {
